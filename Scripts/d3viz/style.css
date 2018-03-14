@@ -1,0 +1,17 @@
+.line {
+  fill: none;
+  stroke: #34495E;
+  stroke-width: 2px;
+}
+
+#chart3 {
+    float:left; /* add this */
+}
+
+#tweetcontainer {
+  float:left;
+}
+
+#sentiment-line {
+  stroke:none;
+}

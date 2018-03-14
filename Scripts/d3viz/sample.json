@@ -1,0 +1,146 @@
+[
+{
+  "score":"positive",
+  "platform":"twitter",
+  "year":1900,
+  "value":"0"
+},
+{
+  "score":"positive",
+  "platform":"twitter",
+  "year":1950,
+  "value":"231"
+},
+{
+  "score":"positive",
+  "platform":"twitter",
+  "year":2000,
+  "value":"191"
+},
+{
+  "score":"positive",
+  "platform":"twitter",
+  "year":2015,
+  "value":"302"
+},
+{
+  "score":"negative",
+  "platform":"twitter",
+  "year":1900,
+  "value":"0"
+},
+{
+  "score":"negative",
+  "platform":"twitter",
+  "year":1950,
+  "value":"-331"
+},
+{
+  "score":"negative",
+  "platform":"twitter",
+  "year":2000,
+  "value":"-291"
+},
+{
+  "score":"negative",
+  "platform":"twitter",
+  "year":2015,
+  "value":"-250"
+},
+{
+  "score":"positive",
+  "platform":"instagram",
+  "year":1900,
+  "value":"171"
+},
+{
+  "score":"positive",
+  "platform":"instagram",
+  "year":1950,
+  "value":"121"
+},
+{
+  "score":"positive",
+  "platform":"instagram",
+  "year":2000,
+  "value":"231"
+},
+{
+  "score":"positive",
+  "platform":"instagram",
+  "year":2015,
+  "value":"202"
+},
+{
+  "score":"negative",
+  "platform":"instagram",
+  "year":1900,
+  "value":"-73"
+},
+{
+  "score":"negative",
+  "platform":"instagram",
+  "year":1950,
+  "value":"-151"
+},
+{
+  "score":"negative",
+  "platform":"instagram",
+  "year":2000,
+  "value":"-399"
+},
+{
+  "score":"negative",
+  "platform":"instagram",
+  "year":2015,
+  "value":"-140"
+},
+{
+  "score":"positive",
+  "platform":"all",
+  "year":1900,
+  "value":"71"
+},
+{
+  "score":"positive",
+  "platform":"all",
+  "year":1950,
+  "value":"221"
+},
+{
+  "score":"positive",
+  "platform":"all",
+  "year":2000,
+  "value":"31"
+},
+{
+  "score":"positive",
+  "platform":"all",
+  "year":2015,
+  "value":"102"
+},
+{
+  "score":"negative",
+  "platform":"all",
+  "year":1900,
+  "value":"-173"
+},
+{
+  "score":"negative",
+  "platform":"all",
+  "year":1950,
+  "value":"-194"
+},
+{
+  "score":"negative",
+  "platform":"all",
+  "year":2000,
+  "value":"-195"
+},
+{
+  "score":"negative",
+  "platform":"all",
+  "year":2015,
+  "value":"-230"
+}
+]
