@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.line {
+  fill: none;
+  stroke: #34495E;
+  stroke-width: 2px;
+}
+
+.milestone-circle {
+  fill: #F0F3F4;
+  stroke: #212F3D;
+}
+
+#chart3 {
+    float:left; /* add this */
+}
+
+#tweetcontainer {
+  float:left;
+}
+
+#sentiment-line {
+  stroke:none;
+}
+
+</style>
+<body>
+<button id="milestone-btn" onclick="nextStep()">Next</button>
+<div id="chart2"></div>
+<div id="chart1"></div>
+<div id="newdiv">
+  <div id="chart3"></div>
+  <div id="tweetcontainer"><div id="twit"></div></div>
+</div>
+<script sync src="https://platform.twitter.com/widgets.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+// Initialize variables
+var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+    height2 = 250 - margin.top - margin.bottom;
+    height3 = 750 - margin.top - margin.bottom;
+  
+var parseTime = d3.timeParse("%Y-%m-%d");
+
+var x = d3.scaleTime().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+var y2 = d3.scaleLinear().range([height2, 0]);
+var y3 = d3.scaleLinear().range([height3, 0]);
+var area = d3.area()
+    .x(function(d) { return x(d.time); })
+    .y0(function(d) { return y2(d.score); })
+    .y1(function(d) { return y2(0); })
+    .curve(d3.curveMonotoneX);
+
+var valueline = d3.line()
+    .x(function(d) { return x(d.time); })
+    .y(function(d) { return y(d.count); })
+    
+var sentimentline = d3.line()
+    .x(function(d) { return x(d.time); })
+    .y(function(d) { return y2(d.score); })
+    .curve(d3.curveMonotoneX)
+
+
+var tooltip = d3.select("#post").append("div") 
+    .attr("class", "tooltip")       
+    .style("opacity", 0);
+
+var milestones = [
+  {date: parseTime("2015-05-30")},
+  {date: parseTime("2016-08-04")},
+  {date: parseTime("2017-08-28")},
+  {date: parseTime("2017-10-08")},
+  {date: parseTime("2017-11-26")},
+  {date: parseTime("2018-02-21")},
+  {date: parseTime("2018-03-01")}
+];
+
+var nextMilestone = 0;
+var transitionDuration = 1000;
+var dataMilestone = {}; 
+var dataMilestoneScatter = {};
+
+// Magnitude of Posts Line Chart ----------------
+
+var svg = d3.select("#chart1").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("catsofbgc.csv", function(error, data) {
+  if (error) throw error;
+
+  data.forEach(function(d) {
+      d.time = parseTime(d.time);
+      d.count = +d.count;
+  });
+
+  x.domain(d3.extent(data, function(d) { return d.time; }));
+  y.domain([0, d3.max(data, function(d) { return d.count; })]);
+
+  svg.append("clipPath")
+    .attr("id", "clip-popularity")
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", 0)
+    .attr("height", height);
+
+  svg.append("path")
+      .data([data])
+      .attr("clip-path", "url(#clip-popularity)")
+      .attr("class", "line")
+      .attr("id", "popularity-chart")
+      .attr("d", valueline);
+
+  svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+  svg.append("g")
+      .call(d3.axisLeft(y));
+
+});
+
+// Sentiment Line Chart ----------------
+
+var svg2 = d3.select("#chart2")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height2 + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("catsofbgc.csv", function(error, data) {
+  if (error) throw error; 
+
+  data.forEach(function(d) {
+      d.time = parseTime(d.time);
+      d.score = +d.sentiment_score;
+  });
+
+  dataMilestone = data;
+
+  x.domain(d3.extent(data, function(d) { return d.time; }));
+  y2.domain([-1,1]);
+
+  svg2.append("clipPath")
+    .attr("id", "clip-sentiment")
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", 0)
+    .attr("height", height2);
+
+  svg2.append("linearGradient")
+    .attr("id", "color-gradient")
+    .attr("gradientUnits", "userSpaceOnUse")
+    .attr("x1", 0).attr("y1", 0)
+    .attr("x2", 0).attr("y2", height2)
+  .selectAll("stop")
+    .data([
+      {offset: "0%", color: "#D5F5E3"},
+      {offset: "50%", color: "#D5F5E3"},
+      {offset: "50%", color: "#F1948A"},
+      {offset: "100%", color: "#F1948A"}
+    ])
+  .enter().append("stop")
+    .attr("offset", function(d) { return d.offset; })
+    .attr("stop-color", function(d) { return d.color; });
+
+  svg2.append("path")
+      .data([data])
+      .attr("clip-path", "url(#clip-sentiment)")
+      .attr("class", "area")
+      .attr("d", area)
+      .style("fill", "url(#color-gradient)");
+
+  svg2.append("path")
+      .data([data])
+      .attr("class", "line")
+      .attr("id", "sentiment-line")
+      .attr("d", sentimentline);
+
+  svg2.append("g")
+      .attr("transform", "translate(0," + height2/2 + ")")
+      .call(d3.axisBottom(x));
+
+  svg2.append("g")
+      .call(d3.axisLeft(y2));
+
+  svg2.selectAll(".tick")
+      .each(function (d) {
+          this.remove();
+      });
+
+});
+
+var svg3 = d3.select("#chart3").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height3 + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("allposts.csv", function(error, data) {
+  if (error) throw error; 
+
+  data.forEach(function(d) {
+      d.time = parseTime(d.time);
+      d.popularity = +d.pop_score;
+      d.link = d.link;
+      d.platform = d.platform;
+      d.sentiment = +d.score;
+  });
+
+  dataMilestoneScatter = data;
+
+  x.domain(d3.extent(data, function(d) { return d.time; }));
+  y3.domain([0, d3.max(data, function(d) { return d.popularity; })]);
+
+
+
+  svg3.append("g")
+      .attr("transform", "translate(0," + height3 + ")")
+      .call(d3.axisBottom(x));
+
+  svg3.append("g")
+      .call(d3.axisLeft(y3));
+
+});
+
+function nextStep() {
+
+    if (nextMilestone != 0) {
+      var dots = document.getElementsByClassName("scatterplots");
+      for (var i = dots.length - 1; i >= 0; i--) {
+          dots[i].remove();
+      }
+    }
+
+  if (milestones.length == nextMilestone) {
+      svg2.selectAll("#clip-sentiment").selectAll("rect")
+        .transition().duration(1000)
+        .attr("width",0);
+
+      svg.selectAll("#clip-popularity").selectAll("rect")
+        .transition().duration(1000)
+        .attr("width",0);  
+
+      var circles = document.getElementsByClassName("milestone-circle");
+      for (var i = circles.length - 1; i >= 0; i--) {
+        circles[i].remove();
+      }
+
+      var milestonepoints = document.getElementsByClassName("milestone-point");
+      for (var i = milestonepoints.length - 1; i >= 0; i--) {
+        milestonepoints[i].remove();
+      }
+
+      nextMilestone = 0;
+      document.getElementById("milestone-btn").innerHTML ="Next";
+  
+  }
+
+  else 
+  {
+      svg2.selectAll("#clip-sentiment").selectAll("rect")
+        .transition().duration(1000)
+        .attr("width", x(milestones[nextMilestone].date) );
+
+      svg.selectAll("#clip-popularity").selectAll("rect")
+        .transition().duration(1000)
+        .attr("width", x(milestones[nextMilestone].date) );
+
+
+      svg3.selectAll("dot")
+          .data(dataMilestoneScatter)
+        .enter().append("circle")
+          .filter(function(d) {return d.time <= milestones[nextMilestone].date})
+          .attr("class", "scatterplots")
+          .attr("r", 5)
+          .attr("cx", function(d) { return x(d.time); })
+          .attr("cy", function(d) { return y3(d.popularity); })
+          .attr("fill-opacity", 0.5)
+          .style("fill", function(d){ if (d.sentiment < 0) {return 'red'} else {return 'black'}})
+          .on("mouseover", function(d) {   
+                  d3.select(this).transition().attr('r',8);
+                  
+                  removeTweet = (function(){
+                    document.getElementById("twit").remove();
+                  })
+
+                  if (d.platform == "tw") {
+                    loadTweet = (function(id){
+                      var tweetdiv = document.createElement("div");
+                      document.getElementById("tweetcontainer").appendChild(tweetdiv);
+                      tweetdiv.id = "twit";
+                      var tweet = document.getElementById("twit");
+                      var id = d.id;
+                      twttr.widgets.createTweet(id, tweet)
+                    });
+                    removeTweet();
+                    loadTweet()
+                  }
+                  else if (d.platform == "ig") {
+
+                  }
+              })          
+          .on("mouseout", function(d) {  
+                d3.select(this).transition().attr('r',5);
+              });
+
+      var milestonePoint = svg2.selectAll(".milestone-point")
+        .data(dataMilestone)
+        .enter()
+        .filter(function (d) { 
+          return d.time.toDateString() == milestones[nextMilestone].date.toDateString() ;
+        }
+          );
+
+      milestonePoint.append("g")
+        .attr("class", "milestone-point")
+        .attr("transform", function (d) { return "translate(" + x(d.time) + ",0)" ; } );
+
+      milestonePoint.append("circle")
+        .attr("id", function (d) { return "circle-milestone-" + nextMilestone ; })
+        .attr("class", "milestone-circle")
+        .attr("cx", function (d) { return x(d.time) } )
+        .attr("cy", function (d) { return y2(d.score) } )
+        .attr("r", 4)
+        .style("fill-opacity", 0)        
+        .style("stroke-opacity", 0);
+
+      svg2.selectAll("#circle-milestone-" + nextMilestone)
+        .transition()
+        .duration(1000)
+        .style("stroke-opacity", 0.9)
+        .style("fill-opacity", 0.9);
+
+      nextMilestone = nextMilestone + 1;
+
+      if (milestones.length - 1 == nextMilestone) {
+        document.getElementById("milestone-btn").innerHTML ="Reset";}
+  }
+}
+
+
+
+</script>
+<script async="" defer="defer" src="//platform.instagram.com/en_US/embeds.js"></script>
+</body>
