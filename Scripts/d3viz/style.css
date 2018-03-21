@@ -1,11 +1,16 @@
 .line {
   fill: none;
-  stroke: #34495E;
+  stroke: #212F3D;
   stroke-width: 2px;
 }
 
+.milestone-circle {
+  fill: white;
+  stroke: #212F3D;
+}
+
 #chart3 {
-    float:left; /* add this */
+  float:left;
 }
 
 #tweetcontainer {
@@ -14,4 +19,9 @@
 
 #sentiment-line {
   stroke:none;
+}
+
+#smpost {
+  float:left;
+  height: 700px;
 }

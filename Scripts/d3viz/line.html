@@ -1,40 +1,19 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style>
-
-.line {
-  fill: none;
-  stroke: #212F3D;
-  stroke-width: 2px;
-}
-
-.milestone-circle {
-  fill: white;
-  stroke: #212F3D;
-}
-
-#chart3 {
-  float:left;
-}
-
-#tweetcontainer {
-  float:left;
-}
-
-#sentiment-line {
-  stroke:none;
-}
-
-</style>
+<link rel="stylesheet" type="text/css" href="style.css">
 <body>
+  <script async defer src="//www.instagram.com/embed.js"></script>
 <button id="milestone-btn" onclick="nextStep()">Next</button>
 <div id="chart2"></div>
 <div id="chart1"></div>
 <div id="newdiv">
   <div id="chart3"></div>
-  <div id="tweetcontainer"><div id="twit"></div></div>
+  <div id="smpost"></div>
+  <!--<div id="tweetcontainer"><div id="twit"></div>
+  <div id="igpost"></div> -->
 </div>
 <script sync src="https://platform.twitter.com/widgets.js"></script>
+
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
@@ -93,7 +72,24 @@ var loadTweet = (function(id){
     var tweet = document.getElementById("twit");
     twttr.widgets.createTweet(id, tweet)});
 
+var removeIg = (function(){document.getElementById("igpost").innerHTML= "";})
+var loadIg = (function(link){
+  var request = new XMLHttpRequest();
+    request.open("GET", "https://api.instagram.com/oembed/?url=" + link, true);
+    request.onload = function(){
+      var data = JSON.parse(this.response);
+      console.log(data.html)
+      document.getElementById("smpost").innerHTML= data.html;
+      window.instgrm.Embeds.process();
+    }
+    request.send();
 
+})
+
+var reload = (function(){document.getElementById("smpost").innerHTML= "";})
+var loadTweet2 = (function(id){
+    var tweet = document.getElementById("smpost");
+    twttr.widgets.createTweet(id, tweet)});
 
 function textAnchorPosition(d) {
   var textPosition;
@@ -145,7 +141,8 @@ d3.csv("catsofbgc.csv", function(error, data) {
       .call(d3.axisBottom(x));
 
   svg.append("g")
-      .call(d3.axisLeft(y));});
+      .call(d3.axisLeft(y));
+});
 
 // Sentiment Line Chart (svg2) ----------------
 
@@ -258,28 +255,27 @@ d3.csv("allposts.csv", function(error, data) {
         if (this.getAttribute("value") == "show") {
           d3.select(this).style("cursor","pointer")
           if (d.platform == "tw") {
-            loadTweet(d.id);}
+            loadTweet2(d.id);}
           else if (d.platform == "ig") {
-            //ig mouseover  
-          }}
-        else { //if value is hide
-            
+            loadIg(d.link)          }}
+        else { //if value is hide       
         }})          
     .on("mouseout", function(d) {  
         d3.select(this).transition().attr('r',5);
         if (this.getAttribute("value") == "show") {
           d3.select(this).style("cursor","default")
           if (d.platform == "tw") {
-            removeTweet();}
+            reload();}
           else if (d.platform == "ig"){
-            //ig mouseout
+            reload();
           }}});
 
   svg3.append("g")
       .attr("transform", "translate(0," + height3 + ")")
       .call(d3.axisBottom(x));
 
-  svg3.append("g").call(d3.axisLeft(y3));});
+  svg3.append("g").call(d3.axisLeft(y3));
+});
 
 
 // Data story
@@ -374,6 +370,7 @@ function nextStep() {
     if (milestones.length == nextMilestone) {
       document.getElementById("milestone-btn").innerHTML ="Reset";
     }}}
+
 
 </script>
 <script async="" defer="defer" src="//platform.instagram.com/en_US/embeds.js"></script>
